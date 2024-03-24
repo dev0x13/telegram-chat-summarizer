@@ -1,0 +1,6 @@
+telethon
+python-dotenv
+langchain
+langchain-openai
+pydantic
+schedule

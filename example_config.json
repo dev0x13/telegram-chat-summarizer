@@ -1,0 +1,15 @@
+{
+    "telegram_api_id": <id>,
+    "telegram_api_hash": "<hash>",
+    "openai_api_key": "<key>",
+    "chats_to_summarize": [
+        {
+            "id": "<group chat ID or name>",
+            "lookback_period_seconds": 86400,
+            "summarization_prompt_path": "example_summarization_prompt.txt"
+        }
+    ],
+    "telegram_summary_receivers": [
+        "<Telegram username>"
+    ]
+}
