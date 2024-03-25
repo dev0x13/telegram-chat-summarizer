@@ -1,7 +1,9 @@
 FROM python:3
 
 COPY requirements.txt /app/
-COPY bot.py /app/
+COPY app.py /app/
+COPY summarization.py /app/
+COPY communication.py /app/
 COPY prompts/ /app/
 COPY config.json /app/
 
