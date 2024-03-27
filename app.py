@@ -55,10 +55,12 @@ if __name__ == "__main__":
         with llm_contexts_lock:
             envoy_bot.set_typing_status([sender], llm_contexts_lock.locked)
             if not context_name in llm_contexts or not sender in llm_contexts[context_name]:
-                send_message_func("No context is available for %s yet" % context_name)
+                send_message_func(f"No context is available for {context_name} yet")
                 return
-            logger.info("Chatting with: " + sender)
-            send_message_func(llm_contexts[context_name][sender].predict(human_input=input_message_text))
+            logger.info(f"Chatting with: {sender}")
+            response = llm_contexts[context_name][sender].predict(human_input=input_message_text)
+            logger.debug(f"Response to message \"{input_message_text}\" from {sender}: \"{response}\"")
+            send_message_func(response)
 
 
     summarizer = Summarizer(app_config.openai_api_key)
@@ -69,15 +71,18 @@ if __name__ == "__main__":
 
 
     def summarization_job(chat_cfg, summarization_prompt, summary_receivers):
-        logger.info("Running summarization job for: " + chat_cfg.id)
+        logger.info(f"Running summarization job for: {chat_cfg.id}")
         with llm_contexts_lock:
             envoy_bot.set_typing_status(summary_receivers, llm_contexts_lock.locked)
             messages = group_chat_scrapper.get_message_history(chat_cfg.id, chat_cfg.lookback_period_seconds)
+            logger.debug(
+                f"Scrapped {len(messages)} messages for {chat_cfg.id} over the last {chat_cfg.lookback_period_seconds} seconds")
             serialized_messages = json.dumps({"messages": messages}, ensure_ascii=False)
             summary, context = summarizer.summarize(serialized_messages, summarization_prompt)
             for u in summary_receivers:
                 llm_contexts[chat_cfg.id][u] = context
-                logger.info("Sending summary to: " + u)
+                logger.info(f"Sending summary for {chat_cfg.id} to {u}")
+                logger.debug(f"Summary for {chat_cfg.id}: {summary}")
                 chat_lookback_period_hours = int(chat_cfg.lookback_period_seconds / 60 / 60)
                 envoy_bot.send_summary(
                     u,

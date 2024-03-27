@@ -64,7 +64,7 @@ class EnvoyBot:
 
     def send_summary(self, username, text, chat_id):
         if not username in self.verified_receivers:
-            self.logger.info("User %s is not yet verified" % username)
+            self.logger.info(f"User {username} is not yet verified")
             return
         self.bot.send_message(self.verified_receivers[username], text, parse_mode="HTML")
         self.set_current_user_context(username, chat_id)
@@ -87,8 +87,7 @@ class EnvoyBot:
                 return
             sender = message.from_user.username
             if not sender or not sender in self.telegram_summary_receivers:
-                self.logger.warning("Unauthorized usage attempt from user: %s",
-                                    str(message.from_user))
+                self.logger.warning(f"Unauthorized usage attempt from user: {str(message.from_user)}")
                 return
             if message.text.startswith("/"):
                 if message.text == "/verify":
@@ -102,7 +101,7 @@ class EnvoyBot:
                                                   self.allowed_commands))
                         return
                     self.set_current_user_context(sender, message.text[1:])
-                    self.bot.send_message(message.chat.id, "Switched context to: " + self.current_user_contexts[sender])
+                    self.bot.send_message(message.chat.id, f"Switched context to {self.current_user_contexts[sender]}")
             else:
                 if not sender in self.current_user_contexts:
                     self.bot.send_message(message.chat.id,

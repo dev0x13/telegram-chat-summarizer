@@ -2,3 +2,4 @@ config.json
 prompts/
 __pycache__/
 .idea/
+*.session
