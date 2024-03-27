@@ -70,6 +70,18 @@ or
 docker run -it tcsa:latest
 ```
 
+At the first run the app will ask you to log in to the used Telegram account, like this:
+
+```shell
+user@pc:~/telegram-chat-summarizer $ python3 app.py config.json
+2024-03-27 23:03:11,618 - INFO - Started!
+Please enter your phone (or bot token): <phone number>
+Please enter the code you received: <OTP>
+Please enter your password:
+```
+
+Then the session will be stored on the disk, and the subsequent runs won't require authentication.
+
 ## Usage
 
 Once the app is up and running, each summary subscriber needs to send the `/verify` message to the bot so that it can

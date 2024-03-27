@@ -12,7 +12,7 @@ class GroupChatScrapper:
     def __init__(self, telegram_api_id, telegram_api_hash):
         # Here we are forced to use the Telegram API because bots cannot be added to group chats by anyone except admins
         self.client = TelegramClient("CSB", api_id=telegram_api_id, api_hash=telegram_api_hash)
-        self.client.connect()
+        self.client.start()
         # We need to always disconnect not to break the Telegram session
         atexit.register(self.client.disconnect)
 
