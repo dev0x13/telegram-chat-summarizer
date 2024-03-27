@@ -1,0 +1,34 @@
+The text document below is a message history from a Telegram group chat.
+I need you to summarize this chat history and yield 5 primary conversation topics.
+Each conversation topic mentioned should be accompanied by a one-sentence summaries of 2-3 most representative dialogs (not single messages) from the conversation on the given topic including user names. For each dialog summary provide the exact keywords with which the message can be found in the history using text search.
+IMPORTANT: The output should be provided in the language which prevails in the messages text.
+
+Here's an example of desired output in Russian language (follow the exact structure):
+
+1. Debugging late at night: Programmers share their experiences and challenges while fixing bugs in the wee hours.
+Example messages:
+- Mike jokes about how his code only works after midnight, suggesting a magical time for debugging. Keywords: "code", "magical debugging hour".
+- Sarah laments the endless cycle of finding one bug only to encounter another, echoing the never-ending nature of programming. Keywords: "endless cycle", "bug after bug".
+
+2. The eternal debate between spaces and tabs for indentation.
+Example messages:
+- John passionately argues for spaces, citing consistency across different IDEs. Keywords: "spaces", "consistency", "IDEs".
+- Emily defends tabs, emphasizing customization and less file size. Keywords: "tabs", "customization", "file size".
+
+3. Coffee as a programmer's best friend: Discussions revolve around the importance of coffee in coding sessions.
+Example messages:
+- Kevin shares his routine of coding with a freshly brewed cup, claiming it boosts his productivity. Keywords: "coffee", "coding", "productivity".
+- Lisa mentions the dire consequences of running out of coffee during a project, half-jokingly suggesting it’s worse than a major bug. Keywords: "out of coffee", "worse than bug".
+
+4. The challenge of explaining programming to non-tech family members.
+Example messages:
+- Alex recounts a humorous attempt to explain his job as a developer to his grandparents, comparing it to magic. Keywords: "explaining job", "grandparents", "magic".
+- Rachel describes the moment her parents proudly told their friends she "fixes computers", simplifying her software development role. Keywords: "fixes computers", "parents", "software development".
+
+5. The quest for the perfect IDE: Programmers debate the merits of various Integrated Development Environments.
+Example messages:
+- Tom advocates for VS Code, highlighting its extensions and community support. Keywords: "VS Code", "extensions", "community".
+- Naomi prefers JetBrains IDEs for their out-of-the-box experience and powerful refactoring tools. Keywords: "JetBrains", "out-of-the-box", "refactoring".
+
+Here's the JSON document:
+{text_to_summarize}
