@@ -1,6 +1,7 @@
 import atexit
 from datetime import datetime, timedelta, timezone
 import threading
+import time
 import logging
 from telethon.sync import TelegramClient
 from telethon.tl.types import User, Channel
@@ -68,10 +69,14 @@ class EnvoyBot:
         self.bot.send_message(self.verified_receivers[username], text, parse_mode="HTML")
         self.set_current_user_context(username, chat_id)
 
-    def set_typing_status(self):
-        for u in self.verified_receivers.values():
-            # TODO: adjust time
-            self.bot.send_chat_action(u, "typing")
+    def set_typing_status(self, users, predicate):
+        def f():
+            while predicate():
+                for u in users:
+                    if u in self.verified_receivers:
+                        self.bot.send_chat_action(self.verified_receivers[u], "typing")
+                time.sleep(5)
+        threading.Thread(target=f).start()
 
     def set_current_user_context(self, username, context):
         self.current_user_contexts[username] = context
@@ -104,6 +109,5 @@ class EnvoyBot:
                                           "Select context first, valid commands are: " + ", ".join(
                                               self.allowed_commands))
                     return
-                self.set_typing_status()
                 self.chat_callback(message.text, sender, self.current_user_contexts[sender],
                                    lambda x: self.bot.send_message(message.chat.id, x))

@@ -53,6 +53,7 @@ if __name__ == "__main__":
 
     def chat_callback(input_message_text, sender, context_name, send_message_func):
         with llm_contexts_lock:
+            envoy_bot.set_typing_status([sender], llm_contexts_lock.locked)
             if not context_name in llm_contexts or not sender in llm_contexts[context_name]:
                 send_message_func("No context is available for %s yet" % context_name)
                 return
@@ -70,14 +71,19 @@ if __name__ == "__main__":
     def summarization_job(chat_cfg, summarization_prompt, summary_receivers):
         logger.info("Running summarization job for: " + chat_cfg.id)
         with llm_contexts_lock:
-            envoy_bot.set_typing_status()
+            envoy_bot.set_typing_status(summary_receivers, llm_contexts_lock.locked)
             messages = group_chat_scrapper.get_message_history(chat_cfg.id, chat_cfg.lookback_period_seconds)
             serialized_messages = json.dumps({"messages": messages}, ensure_ascii=False)
             summary, context = summarizer.summarize(serialized_messages, summarization_prompt)
             for u in summary_receivers:
                 llm_contexts[chat_cfg.id][u] = context
                 logger.info("Sending summary to: " + u)
-                envoy_bot.send_summary(u, "Summary for <b>%s</b>:\n\n%s" % (chat_cfg.id, summary), chat_cfg.id)
+                chat_lookback_period_hours = int(chat_cfg.lookback_period_seconds / 60 / 60)
+                envoy_bot.send_summary(
+                    u,
+                    f"Summary for <b>{chat_cfg.id}</b> for the last {chat_lookback_period_hours} hours:\n\n{summary}",
+                    chat_cfg.id
+                )
 
 
     for chat_config in app_config.chats_to_summarize:
