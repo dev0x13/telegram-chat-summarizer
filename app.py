@@ -35,10 +35,12 @@ if __name__ == "__main__":
 
     app_config = AppConfig.parse_file(args.path_to_config)
 
+    # Validate user prompts
     for c in app_config.chats_to_summarize:
         with open(c.summarization_prompt_path, "r") as f:
             Summarizer.validate_summarization_prompt(f.read())
 
+    # Initialize logger
     logger = logging.getLogger("CSB")
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter(
@@ -47,6 +49,7 @@ if __name__ == "__main__":
     logger.setLevel(app_config.log_level)
     logger.info("Started!")
 
+    # Declare global LLM context storage
     llm_contexts = defaultdict(dict)
     llm_contexts_lock = threading.Lock()
 
@@ -73,12 +76,19 @@ if __name__ == "__main__":
     def summarization_job(chat_cfg, summarization_prompt, summary_receivers):
         logger.info(f"Running summarization job for: {chat_cfg.id}")
         with llm_contexts_lock:
+            # Set the "typing" status for the bot
             envoy_bot.set_typing_status(summary_receivers, llm_contexts_lock.locked)
+
+            # Scrap messages for the given chat
             messages = group_chat_scrapper.get_message_history(chat_cfg.id, chat_cfg.lookback_period_seconds)
             logger.debug(
                 f"Scrapped {len(messages)} messages for {chat_cfg.id} over the last {chat_cfg.lookback_period_seconds} seconds")
             serialized_messages = json.dumps({"messages": messages}, ensure_ascii=False)
+
+            # Summarize messages
             summary, context = summarizer.summarize(serialized_messages, summarization_prompt)
+
+            # Send the summary and update LLM context
             for u in summary_receivers:
                 llm_contexts[chat_cfg.id][u] = context
                 logger.info(f"Sending summary for {chat_cfg.id} to {u}")
@@ -91,6 +101,7 @@ if __name__ == "__main__":
                 )
 
 
+    # Setup recurring summarization jobs
     for chat_config in app_config.chats_to_summarize:
         with open(chat_config.summarization_prompt_path, "r") as f:
             chat_summarization_prompt = f.read()
@@ -98,6 +109,7 @@ if __name__ == "__main__":
             summarization_job, chat_cfg=chat_config, summarization_prompt=chat_summarization_prompt,
             summary_receivers=app_config.telegram_summary_receivers)
 
+    # Run the jobs for the first time
     schedule.run_all()
     while True:
         schedule.run_pending()

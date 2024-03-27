@@ -1,6 +1,7 @@
 # Telegram Chat Summarizer App
 
-**Are you sick of skimming through tons of Telegram messages daily looking for the valuable info? The salvation is here!**
+**Are you sick of skimming through tons of Telegram messages daily looking for the valuable info? The salvation is here!
+**
 
 This repository hosts an implementation of a Telegram application which monitors and summarizes group chats. Initially
 created for personal usage, it's intended for people who need to gather information from one or several live massive
@@ -15,7 +16,7 @@ Based on the given configurations it:
 4. For each sent summary the app preserves the summarization context until the next summarization so that the user can
    ask clarifying questions on the summary.
 
-## Usage
+## Installation
 
 1. Obtain `api_id` and `api_hash` values for the Telegram API
    using [this](https://core.telegram.org/api/obtaining_api_id#obtaining-api-id) guide.
@@ -69,3 +70,23 @@ or
 ```shell
 docker run -it tcsa:latest
 ```
+
+## Usage
+
+Once the app is up and running, each summary subscriber needs to send the `/verify` message to the bot so that it can
+register the user.
+
+The bot can switch conversation context by being provided with the command `/<summarized chat name>` (the chat name can
+be any of the ones defined in the config). This mechanism is used if you have more than one chat being summarized: by
+giving the corresponding command you can switch the LLM context to a different chat and discuss that chat's summary.
+
+## Implementation details
+
+The implementation is very simplistic, and there is definitely a room for improvement. Some immediate nice-to-haves (PRs
+are
+welcome!):
+
+1. Disk storage persistence for user verification and chat contexts.
+2. Getting rid of the summary subscription mechanism in favor of something less inconvenient.
+3. Basic app management (chats to summarize, summary subscribers etc.) through the bot as an alternative to the config
+   file.

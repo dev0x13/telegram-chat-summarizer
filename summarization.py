@@ -13,6 +13,8 @@ class Summarizer:
     def __init__(self, openai_api_key):
         self.openai_api_key = openai_api_key
         self.openai_model = "gpt-4-turbo-preview"
+
+        # Needed to store chat history
         self.persistent_prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessage(

@@ -10,8 +10,10 @@ import telebot
 
 class GroupChatScrapper:
     def __init__(self, telegram_api_id, telegram_api_hash):
+        # Here we are forced to use the Telegram API because bots cannot be added to group chats by anyone except admins
         self.client = TelegramClient("CSB", api_id=telegram_api_id, api_hash=telegram_api_hash)
         self.client.connect()
+        # We need to always disconnect not to break the Telegram session
         atexit.register(self.client.disconnect)
 
     @staticmethod
@@ -36,6 +38,8 @@ class GroupChatScrapper:
     def get_message_history(self, chat_id, lookback_period):
         history = []
         datetime_from = self.get_datetime_from(lookback_period)
+        # Warning: this probably won't work with the private group chats as those require joining beforehand
+        # (public chats can be scrapped right away)
         for message in self.client.iter_messages(chat_id):
             if message.date < datetime_from:
                 break
@@ -54,9 +58,15 @@ class EnvoyBot:
         self.logger = logging.getLogger("CSB")
         self.telegram_summary_receivers = telegram_summary_receivers
         self.verified_receivers = dict()
+
+        # This one is used for switching between summarized chat conversation
         self.allowed_commands = ["/" + c for c in allowed_contexts]
         self.current_user_contexts = dict()
+
+        # This one is used to generate responses for arbitrary messages
         self.chat_callback = chat_callback
+
+        # The bot is running in the background thread to make the call non-blocking
         self.bot = telebot.TeleBot(telegram_bot_auth_token)
         self.bot.set_update_listener(self.__handle_messages)
         self.bot_thread = threading.Thread(target=self.bot.infinity_polling)
@@ -70,12 +80,15 @@ class EnvoyBot:
         self.set_current_user_context(username, chat_id)
 
     def set_typing_status(self, users, predicate):
+        # The self self.bot.send_chat_action(user, "typing") sets the status for <= 5 seconds until the message is sent
+        # We use this kludge to make the status persistent for a longer time
         def f():
             while predicate():
                 for u in users:
                     if u in self.verified_receivers:
                         self.bot.send_chat_action(self.verified_receivers[u], "typing")
                 time.sleep(5)
+
         threading.Thread(target=f).start()
 
     def set_current_user_context(self, username, context):
@@ -91,6 +104,7 @@ class EnvoyBot:
                 return
             if message.text.startswith("/"):
                 if message.text == "/verify":
+                    # We need this verification because bots cannot retrieve chat IDs by the username
                     self.verified_receivers[sender] = message.chat.id
                     self.bot.send_message(message.chat.id, "You are now verified and will receive generated summaries")
                     return
