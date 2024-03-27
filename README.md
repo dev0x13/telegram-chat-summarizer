@@ -1,7 +1,6 @@
 # Telegram Chat Summarizer App
 
-**Are you sick of skimming through tons of Telegram messages daily looking for the valuable info? The salvation is here!
-**
+**Are you sick of skimming through tons of Telegram messages daily looking for the valuable info? The salvation is here!**
 
 This repository hosts an implementation of a Telegram application which monitors and summarizes group chats. Initially
 created for personal usage, it's intended for people who need to gather information from one or several live massive
