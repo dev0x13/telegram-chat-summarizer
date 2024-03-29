@@ -10,7 +10,7 @@ Based on the given configurations it:
 
 1. Monitors a set of given Telegram group chats using [Telegram API](https://core.telegram.org/#telegram-api).
 2. Summarizes the monitored chats over the defined lookback period (i.e. if you set the lookback period to 12 hours,
-   you'll be receiving summaries for the last 12 hours twice a day).
+   you'll be receiving summaries for the last 12 hours twice a day). **Only text message are analyzed as of now.**
 3. Sends the summaries to a given set of Telegram users using the [Bot API](https://core.telegram.org/#bot-api).
 4. For each sent summary the app preserves the summarization context until the next summarization so that the user can
    ask clarifying questions on the summary.
@@ -91,7 +91,7 @@ The bot can switch conversation context by being provided with the command `/<su
 be any of the ones defined in the config). This mechanism is used if you have more than one chat being summarized: by
 giving the corresponding command you can switch the LLM context to a different chat and discuss that chat's summary.
 
-## Implementation details
+## Implementation details and limitations
 
 The implementation is very simplistic, and there is definitely a room for improvement. Some immediate nice-to-haves (PRs
 are
@@ -101,3 +101,4 @@ welcome!):
 2. Getting rid of the summary subscription mechanism in favor of something less inconvenient.
 3. Basic app management (chats to summarize, summary subscribers etc.) through the bot as an alternative to the config
    file.
+4. Supporting messages other than text ones: voice messages, images, videos.

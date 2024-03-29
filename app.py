@@ -68,9 +68,12 @@ if __name__ == "__main__":
 
     summarizer = Summarizer(app_config.openai_api_key)
     group_chat_scrapper = GroupChatScrapper(app_config.telegram_api_id, app_config.telegram_api_hash)
-    envoy_bot = EnvoyBot(app_config.telegram_bot_auth_token, app_config.telegram_summary_receivers,
-                         [c.id for c in app_config.chats_to_summarize],
-                         chat_callback)
+    envoy_bot = EnvoyBot(
+        app_config.telegram_bot_auth_token,
+        app_config.telegram_summary_receivers,
+        [c.id for c in app_config.chats_to_summarize],
+        chat_callback
+    )
 
 
     def summarization_job(chat_cfg, summarization_prompt, summary_receivers):
@@ -80,7 +83,7 @@ if __name__ == "__main__":
             envoy_bot.set_typing_status(summary_receivers, llm_contexts_lock.locked)
 
             # Scrap messages for the given chat
-            messages = group_chat_scrapper.get_message_history(chat_cfg.id, chat_cfg.lookback_period_seconds)
+            messages, chat_title= group_chat_scrapper.get_message_history(chat_cfg.id, chat_cfg.lookback_period_seconds)
             logger.debug(
                 f"Scrapped {len(messages)} messages for {chat_cfg.id} over the last {chat_cfg.lookback_period_seconds} seconds")
             serialized_messages = json.dumps({"messages": messages}, ensure_ascii=False)
@@ -92,7 +95,7 @@ if __name__ == "__main__":
             for u in summary_receivers:
                 llm_contexts[chat_cfg.id][u] = context
                 logger.info(f"Sending summary for {chat_cfg.id} to {u}")
-                logger.debug(f"Summary for {chat_cfg.id}: {summary}")
+                logger.debug(f"Summary for {chat_title}: {summary}")
                 chat_lookback_period_hours = int(chat_cfg.lookback_period_seconds / 60 / 60)
                 envoy_bot.send_summary(
                     u,
@@ -106,8 +109,11 @@ if __name__ == "__main__":
         with open(chat_config.summarization_prompt_path, "r") as f:
             chat_summarization_prompt = f.read()
         schedule.every(chat_config.lookback_period_seconds).seconds.do(
-            summarization_job, chat_cfg=chat_config, summarization_prompt=chat_summarization_prompt,
-            summary_receivers=app_config.telegram_summary_receivers)
+            job_func=summarization_job,
+            chat_cfg=chat_config,
+            summarization_prompt=chat_summarization_prompt,
+            summary_receivers=app_config.telegram_summary_receivers
+        )
 
     # Run the jobs for the first time
     schedule.run_all()

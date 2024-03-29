@@ -10,6 +10,7 @@ import telebot
 
 class GroupChatScrapper:
     def __init__(self, telegram_api_id, telegram_api_hash):
+        self.logger = logging.getLogger("CSB")
         # Here we are forced to use the Telegram API because bots cannot be added to group chats by anyone except admins
         self.client = TelegramClient("CSB", api_id=telegram_api_id, api_hash=telegram_api_hash)
         self.client.start()
@@ -43,14 +44,23 @@ class GroupChatScrapper:
         for message in self.client.iter_messages(chat_id):
             if message.date < datetime_from:
                 break
+            if not message.text:
+                logging.warning(f"Non-text message skipped, summarization result might be affected")
+                continue
             sender = message.get_sender()
-            data = {"id": message.id, "datetime": str(message.date), "text": message.text,
-                    "sender_user_name": self.get_telegram_user_name(sender), "sender_user_id": sender.id,
-                    "is_reply": message.reply_to is not None}
-            if message.reply_to:
+            data = {
+                "id": message.id,
+                "datetime": str(message.date),
+                "text": message.text,
+                "sender_user_name": self.get_telegram_user_name(sender),
+                "sender_user_id": sender.id,
+                "is_reply": message.is_reply
+            }
+            if message.is_reply:
                 data["reply_to_message_id"] = message.reply_to.reply_to_msg_id
             history.append(data)
-        return list(reversed(history))
+        chat_title = self.client.get_entity(chat_id).title
+        return list(reversed(history)), chat_title
 
 
 class EnvoyBot:
