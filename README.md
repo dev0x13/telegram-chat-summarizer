@@ -102,3 +102,5 @@ welcome!):
 3. Basic app management (chats to summarize, summary subscribers etc.) through the bot as an alternative to the config
    file.
 4. Supporting messages other than text ones: voice messages, images, videos.
+
+There is a [step-by-step guide on Habr (RU)](https://habr.com/ru/articles/804111/) written after this implementation.
