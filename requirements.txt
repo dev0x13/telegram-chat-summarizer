@@ -1,6 +1,6 @@
-Telethon==1.34.0
-langchain==0.1.13
-langchain-openai==0.1.1
-pydantic==2.6.4
-schedule==1.2.1
-pyTelegramBotAPI==4.16.1
+Telethon==1.38.1
+langchain==0.3.14
+langchain-openai==0.2.14
+pydantic==2.10.4
+schedule==1.2.2
+pyTelegramBotAPI==4.26.0

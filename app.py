@@ -33,7 +33,8 @@ if __name__ == "__main__":
     parser.add_argument("path_to_config")
     args = parser.parse_args()
 
-    app_config = AppConfig.parse_file(args.path_to_config)
+    with open(args.path_to_config, "r") as f:
+        app_config = AppConfig.model_validate_json(f.read())
 
     # Validate user prompts
     for c in app_config.chats_to_summarize:
